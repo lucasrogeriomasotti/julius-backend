@@ -8,6 +8,8 @@ import com.hackathon.julius.entity.MesExtrato;
 import com.hackathon.julius.entity.Usuario;
 import com.hackathon.julius.entity.enums.TipoItemEnum;
 import com.hackathon.julius.entity.enums.TipoPerfil;
+import com.hackathon.julius.repository.ItemMesExtratoRepository;
+import com.hackathon.julius.repository.MesExtratoRepository;
 import com.hackathon.julius.repository.UsuarioRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -28,9 +30,14 @@ import java.util.stream.Stream;
 @RestController
 @RequestMapping(value = "usuarios")
 public class UsuarioController {
-
     @Autowired
     private UsuarioRepository usuarioRepository;
+
+    @Autowired
+    private MesExtratoRepository mesExtratoRepository;
+
+    @Autowired
+    private ItemMesExtratoRepository itemMesExtratoRepository;
 
     @PostMapping(path = "/", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Usuario> insert(@RequestBody @Valid UsuarioDTO usuarioDTO) {
@@ -42,8 +49,8 @@ public class UsuarioController {
         usuario.setRenda(usuarioDTO.getRenda());
         usuario.setNumeroCartao(usuarioDTO.getNumeroCartao());
 
-        usuario.setTipoPerfil(criarTipoPerfil(usuarioDTO));//TODO TEST
-        //usuario.setExtratos(criarExtratos(usuario));//TODO TEST
+        usuario.setTipoPerfil(criarTipoPerfil(usuarioDTO));
+        criarExtratos(usuario);
 
         Usuario usuarioSalvo =  usuarioRepository.save(usuario);
 
@@ -82,27 +89,25 @@ public class UsuarioController {
      * @param usuario
      * @return
      */
-    private List<MesExtrato> criarExtratos(Usuario usuario) {
-        List<MesExtrato> extratos = new ArrayList<>();
-
-        MesExtrato mesExtrato = new MesExtrato();
-
+    private void criarExtratos(Usuario usuario) {
         LocalDate now = LocalDate.now();
         LocalDate before = now.minusMonths(13);
 
-        while (before != now) {
+        while (before.isBefore(now)) {
+            MesExtrato mesExtrato = new MesExtrato();
             mesExtrato.setMesAno(before);
             mesExtrato.setUsuario(usuario);
-            mesExtrato.setItems(new ArrayList<>());
+
+            List<ItemMesExtrato> items = new ArrayList<>();
 
             Stream.of(TipoItemEnum.values()).forEach(p -> {
                 ItemMesExtrato item = new ItemMesExtrato();
                 item.setTipo(p);
-                item.setValor(generateRandomValue(new BigDecimal("2000")));
-                mesExtrato.getItems().add(item);
+                item.setValor(BigDecimal.valueOf(Math.random() * 2000));
+                items.add(item);
             });
 
-            BigDecimal result = mesExtrato.getItems().stream()
+            BigDecimal result = items.stream()
                     .map(ItemMesExtrato::getValor)
                     .reduce(BigDecimal.ZERO, BigDecimal::add);
 
@@ -113,17 +118,21 @@ public class UsuarioController {
 
             mesExtrato.setSaldo(saldo);
 
-            extratos.add(mesExtrato);
-        }
+            mesExtratoRepository.save(mesExtrato);
 
-        return extratos;
+            for (ItemMesExtrato item : items) {
+                item.setMesExtrato(mesExtrato);
+                itemMesExtratoRepository.save(item);
+            }
+
+            before = before.plusMonths(1);
+        }
     }
 
     private BigDecimal generateRandomValue(BigDecimal max) {
         BigDecimal randFromDouble = new BigDecimal(Math.random());
-        BigDecimal actualRandomDec = randFromDouble.divide(max,BigDecimal.ROUND_DOWN);
+        BigDecimal actualRandomDec = randFromDouble.divide(max, BigDecimal.ROUND_DOWN);
 
-        BigInteger actualRandom = actualRandomDec.toBigInteger();
         return actualRandomDec;
     }
 

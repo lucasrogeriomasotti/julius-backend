@@ -33,12 +33,6 @@ public class Usuario {
     @Enumerated(EnumType.STRING)
     private TipoPerfil tipoPerfil;
 
-    @OneToMany(cascade = CascadeType.ALL, targetEntity = Objetivo.class)
-    private List<Objetivo> objetivos;
-
-    @OneToMany(cascade = CascadeType.ALL, targetEntity = MesExtrato.class)
-    private List<MesExtrato> extratos;
-
     public Integer getId() {
         return id;
     }
@@ -95,22 +89,6 @@ public class Usuario {
         this.renda = renda;
     }
 
-    public List<Objetivo> getObjetivos() {
-        return objetivos;
-    }
-
-    public void setObjetivos(List<Objetivo> objetivos) {
-        this.objetivos = objetivos;
-    }
-
-    public List<MesExtrato> getExtratos() {
-        return extratos;
-    }
-
-    public void setExtratos(List<MesExtrato> extratos) {
-        this.extratos = extratos;
-    }
-
     @Override
     public String toString() {
         return new ToStringBuilder(this)
@@ -121,8 +99,6 @@ public class Usuario {
                 .append("numeroCartao", numeroCartao)
                 .append("renda", renda)
                 .append("tipoPerfil", tipoPerfil)
-                .append("objetivos", objetivos)
-                .append("extratos", extratos)
                 .toString();
     }
 }
