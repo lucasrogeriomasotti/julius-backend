@@ -15,10 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.math.BigDecimal;
@@ -39,7 +36,17 @@ public class UsuarioController {
     @Autowired
     private ItemMesExtratoRepository itemMesExtratoRepository;
 
-    @PostMapping(path = "/", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(path = "/{userId}")
+    public ResponseEntity<Usuario> find(@PathVariable("userId") Integer userId) {
+        Optional<Usuario> usuarioOptional = usuarioRepository.findById(userId);
+        if (usuarioOptional.isPresent()) {
+            return ResponseEntity.ok(usuarioOptional.get());
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    @PostMapping(path = "/")
     public ResponseEntity<Usuario> insert(@RequestBody @Valid UsuarioDTO usuarioDTO) {
         Usuario usuario = new Usuario();
 
@@ -48,6 +55,8 @@ public class UsuarioController {
         usuario.setSenha(usuarioDTO.getSenha());
         usuario.setRenda(usuarioDTO.getRenda());
         usuario.setNumeroCartao(usuarioDTO.getNumeroCartao());
+        usuario.setGastoFixo(usuarioDTO.getGastoFixo());
+        usuario.setDataNascimento(usuarioDTO.getDataNascimento());
 
         usuario.setTipoPerfil(criarTipoPerfil(usuarioDTO));
         criarExtratos(usuario);

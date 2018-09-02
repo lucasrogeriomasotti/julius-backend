@@ -5,6 +5,8 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.Period;
 import java.util.List;
 
 @Entity
@@ -30,13 +32,24 @@ public class Usuario {
     private BigDecimal renda;
 
     @Column(nullable = false)
+    private BigDecimal gastoFixo;
+
+    @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private TipoPerfil tipoPerfil;
+
+    @Column(nullable = false)
+    private LocalDate dataNascimento;
 
     public Usuario() { }
 
     public Usuario(Integer id) {
         this.id = id;
+    }
+
+    @Transient
+    public Integer getIdade() {
+        return Period.between(dataNascimento, LocalDate.now()).getYears();
     }
 
     public Integer getId() {
@@ -93,6 +106,22 @@ public class Usuario {
 
     public void setRenda(BigDecimal renda) {
         this.renda = renda;
+    }
+
+    public BigDecimal getGastoFixo() {
+        return gastoFixo;
+    }
+
+    public void setGastoFixo(BigDecimal gastoFixo) {
+        this.gastoFixo = gastoFixo;
+    }
+
+    public LocalDate getDataNascimento() {
+        return dataNascimento;
+    }
+
+    public void setDataNascimento(LocalDate dataNascimento) {
+        this.dataNascimento = dataNascimento;
     }
 
     @Override
