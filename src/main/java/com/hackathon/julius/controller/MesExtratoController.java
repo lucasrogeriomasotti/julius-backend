@@ -22,7 +22,7 @@ public class MesExtratoController {
     private ItemMesExtratoRepository itemMesExtratoRepository;
 
     @GetMapping(path = "usuarios/{userId}/extratos")
-    public List<ExtratoDTO> listExtratos(@PathVariable("userId") Integer userId) {
+    public List<ExtratoDTO> list(@PathVariable("userId") Integer userId) {
         List<ExtratoDTO> extratos = new ArrayList<>();
 
         List<MesExtrato> mesExtratos = mesExtratoRepository.findByUsuarioId(userId);

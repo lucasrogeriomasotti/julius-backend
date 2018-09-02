@@ -33,6 +33,12 @@ public class Usuario {
     @Enumerated(EnumType.STRING)
     private TipoPerfil tipoPerfil;
 
+    public Usuario() { }
+
+    public Usuario(Integer id) {
+        this.id = id;
+    }
+
     public Integer getId() {
         return id;
     }
