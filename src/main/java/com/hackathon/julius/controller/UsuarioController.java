@@ -42,11 +42,10 @@ public class UsuarioController {
         usuario.setRenda(usuarioDTO.getRenda());
         usuario.setNumeroCartao(usuarioDTO.getNumeroCartao());
 
-        Usuario usuarioSalvo = usuarioRepository.save(usuario);
-        usuarioSalvo.setExtratos(criarExtratos(usuarioSalvo));
-        usuarioSalvo.setTipoPerfil(criarTipoPerfil(usuarioDTO));
+        usuario.setTipoPerfil(criarTipoPerfil(usuarioDTO));//TODO TEST
+        //usuario.setExtratos(criarExtratos(usuario));//TODO TEST
 
-        usuarioRepository.save(usuarioSalvo);
+        Usuario usuarioSalvo =  usuarioRepository.save(usuario);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(usuarioSalvo);
     }
@@ -60,9 +59,7 @@ public class UsuarioController {
         List<RespostaPreDefinidaDTO> respostas = usuarioDTO.getRespostas();
         HashMap<TipoPerfil, BigDecimal> calculos = new HashMap<>();
 
-        Stream.of(TipoPerfil.values()).forEach(tipo -> {
-            calculos.put(tipo, BigDecimal.ZERO);
-        });
+        Stream.of(TipoPerfil.values()).forEach(tipo -> calculos.put(tipo, BigDecimal.ZERO));
 
         respostas.forEach(resp -> {
             resp.getPontos().forEach(ponto -> {
